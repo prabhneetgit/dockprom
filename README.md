@@ -350,3 +350,28 @@ To run the grafana container as `user: 104` change your `docker-compose.yml` lik
     labels:
       org.label-schema.group: "monitoring"
 ```
+
+
+In GCP:
+Modify the grafana config within docker-compose to ensure setup.sh file is able to run properly.
+grafana:
+    image: grafana/grafana:6.1.3
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/datasources:/etc/grafana/datasources
+      - ./grafana/dashboards:/etc/grafana/dashboards
+      - ./grafana/setup.sh:/setup.sh:ro
+    entrypoint: /setup.sh
+    user: root
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    expose:
+      - 3000
+    networks:
+      - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"
